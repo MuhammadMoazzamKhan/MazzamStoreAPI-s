@@ -238,7 +238,7 @@ export const updateProfile = async (req, res, next) => {
             runValidators: true,
             useFindAndModify: true
         });
-        res.status(200).json({ success: true, message: "User has been updated", status: 200 })
+        res.status(200).json({ success: true, message: "Profile has been updated", status: 200 })
     } catch (error) {
         console.log(error.message)
         res.status(500).send({ success: false, status: 500, error: error.message });
@@ -262,7 +262,7 @@ export const getSingleUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
         if (!user) {
-            return res.status(400).json({ status: 400, success: false, message: `This user does not exists with Id : ${req.params.id}` })
+            return res.status(400).json({ status: 404, success: false, message: `This user does not exists with Id : ${req.params.id}` })
         }
         return res.status(200).json({
             status: 200,
@@ -275,4 +275,50 @@ export const getSingleUser = async (req, res) => {
         res.status(500).send({ success: false, status: 500, error: error.message });
     }
 
+}
+
+// this func for admin 
+export const deleteUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(400).json({ status: 404, success: false, message: `This user does not exists with Id : ${req.params.id}` })
+        }
+        await User.deleteOne({ _id: user._id });
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: `This user deleted with Id : ${req.params.id}`,
+        })
+
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).send({ success: false, status: 500, error: error.message });
+    }
+}
+
+// this func for admin 
+export const updateUser = async (req, res) => {
+    try {
+
+        const { name, email, role } = req.body;
+
+        const newUserData = {}
+
+        if (name) { newUserData.name = name }
+        if (email) { newUserData.email = email }
+        if (role) { newUserData.role = role }
+        console.log(newUserData)
+        const userId = req.params.id;
+        const user = await User.findByIdAndUpdate(userId, newUserData, {
+            new: true,
+            runValidators: true,
+            useFindAndModify: true
+        });
+        console.log(user)
+        res.status(200).json({ success: true, message: "User has been updated", status: 200 })
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).send({ success: false, status: 500, error: error.message });
+    }
 }
