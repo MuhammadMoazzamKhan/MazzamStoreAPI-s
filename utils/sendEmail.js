@@ -3,25 +3,27 @@ import nodemailer from 'nodemailer';
 const sendEmail = async (option) => {
   try {
 
-    const transporter = nodemailer.createTransport({
+    const transporter = await nodemailer.createTransport({
       service: process.env.SMPT_SERVICE,
       auth: {
         user: process.env.SMPT_EMAIL,
-        pass: process.env.SMPT_PASSWORD,
+        pass: process.env.SMPT_PASSWROD,
       },
     });
 
-    const mailOptions = {
+    const mailOptions = await {
       from: process.env.SMPT_EMAIL,
       to: option.email,
       subject: option.subject,
-      text: option.message,
+      text: option.message
     };
 
     await transporter.sendMail(mailOptions)
   } catch (error) {
     console.log(error.message)
-    res.status(500).send({ success: false, status: 500, error: error.message });
+    return option.res.status(404).send({
+      seccess: false, status: 400, message: error.message
+  })
   }
 }
 export default sendEmail;

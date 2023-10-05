@@ -1,12 +1,12 @@
-const sendToken= (token ,success,statusCode,res)=>{
-   
+const sendToken = (token, success, statusCode, res) => {
+
     const options = {
-        expires:new Date(
-            Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60* 1000 
+        expires: new Date(
+            Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
         ),
-        httpOnly:true
+        httpOnly: true
     };
-    res.status(statusCode).cookie('token',token,options).json({success ,token})
+    res.status(statusCode).cookie('token', token, options).json({ success, token })
 }
 
 export default sendToken;

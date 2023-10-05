@@ -2,11 +2,15 @@ import jwt from "jsonwebtoken";
 import User from "../model/userModel.js";
 export const isAuthenticateduser = async (req, res, next) => {
     try {
-        const token = req.headers.cookie.split("=")[1];
+        let token;
+        if (req.headers.cookie) {
+         token = req.headers.cookie.split("=")[1];
+        } else {
+            return next(res.status(401).send({ message: "Please login to access this resource" }))
+        }
         if (!token) {
             return next(res.status(401).send({ message: "Please login to access this resource" }))
         }
-
         const decodedDate = jwt.verify(token, process.env.JWT_SECRET)
 
         req.user = await User.findById(decodedDate.user.id)

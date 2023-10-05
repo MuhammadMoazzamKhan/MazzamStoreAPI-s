@@ -43,7 +43,7 @@ const UserSchema = new mongoose.Schema({
 UserSchema.methods.getResetPasswordToken = function () {
     const resetToken = uuidv4();
     this.resetPasswordToken = resetToken;
-    this.resetPasswordExpire = Date.now() + 15 + 60 + 1000
+    this.resetPasswordExpire = Date.now() + 15 * 60 * 1000
 
     return resetToken;
 };
