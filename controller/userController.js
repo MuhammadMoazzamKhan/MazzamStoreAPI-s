@@ -39,7 +39,6 @@ export const createUser = async (req, res) => {
     }
 }
 
-
 export const login = async (req, res) => {
     let success = false;
     const { email, password } = req.body;
@@ -140,7 +139,7 @@ export const forgotPassword = async (req, res, next) => {
 export const updatePassword = async (req, res, next) => {
     try {
 
-        const { oldPassword,newPassword, confirmPassword } = req.body;
+        const { oldPassword, newPassword, confirmPassword } = req.body;
         const userId = req.user._id;
         const user = await User.findById(userId);
         const passwordCompare = await bcrypt.compare(oldPassword, user.password);
@@ -221,4 +220,59 @@ export const resetPassword = async (req, res, next) => {
         console.log(error.message)
         res.status(500).send({ success: false, status: 500, error: error.message });
     }
+}
+
+export const updateProfile = async (req, res, next) => {
+    try {
+
+        const { name, email } = req.body;
+
+        const newUserData = {}
+
+        if (name) { newUserData.name = name }
+        if (email) { newUserData.email = email }
+
+        const userId = req.user._id;
+        const user = await User.findByIdAndUpdate(userId, newUserData, {
+            new: true,
+            runValidators: true,
+            useFindAndModify: true
+        });
+        res.status(200).json({ success: true, message: "User has been updated", status: 200 })
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).send({ success: false, status: 500, error: error.message });
+    }
+}
+
+// this func for admin
+export const fetchAllUser = async (req, res, next) => {
+    try {
+        const user = await User.find();
+        res.status(200).json({ success: true, status: 200, message: "All user have fetched Successfully", user });
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).send({ success: false, status: 500, error: error.message });
+    }
+
+}
+
+// this func for admin 
+export const getSingleUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(400).json({ status: 400, success: false, message: `This user does not exists with Id : ${req.params.id}` })
+        }
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: `This user exists with Id : ${req.params.id}`,
+            user
+        })
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).send({ success: false, status: 500, error: error.message });
+    }
+
 }
