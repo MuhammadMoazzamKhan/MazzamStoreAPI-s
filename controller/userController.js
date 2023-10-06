@@ -308,14 +308,14 @@ export const updateUser = async (req, res) => {
         if (name) { newUserData.name = name }
         if (email) { newUserData.email = email }
         if (role) { newUserData.role = role }
-        console.log(newUserData)
+        
         const userId = req.params.id;
         const user = await User.findByIdAndUpdate(userId, newUserData, {
             new: true,
             runValidators: true,
             useFindAndModify: true
         });
-        console.log(user)
+
         res.status(200).json({ success: true, message: "User has been updated", status: 200 })
     } catch (error) {
         console.log(error.message)
