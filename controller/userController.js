@@ -3,10 +3,17 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken";
 import sendToken from "../utils/jwttoken.js";
 import sendEmail from "../utils/sendEmail.js"
+import cloudinary from 'cloudinary'
 
 export const createUser = async (req, res) => {
     let success = false;
     try {
+        const options = {
+            folder: "avatars",
+            width: 150,
+            crop: "scale"
+        };
+        const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, options);
         let user = await User.findOne({ email: req.body.email })
         if (user) {
             return res.status(400).json({ success, message: "Sorry a user with this email already exists" });
@@ -18,8 +25,8 @@ export const createUser = async (req, res) => {
             email: req.body.email,
             password: salt,
             avatar: {
-                public_id: "this is a sample id",
-                url: "profilePicUrl"
+                public_id: myCloud.public_id,
+                url: myCloud.secure_url
             }
         })
         const data = {
@@ -31,7 +38,7 @@ export const createUser = async (req, res) => {
             expiresIn: process.env.JWT_EXPIRE,
         });
         success = true
-        sendToken(authToken, success, 200, res)
+        await sendToken(authToken, success, 200, res)
 
     } catch (error) {
         console.log(error.message)
@@ -63,7 +70,7 @@ export const login = async (req, res) => {
         }
         const authToken = jwt.sign(data, process.env.JWT_SECRET);
         success = true;
-        sendToken(authToken, success, 200, res)
+        await sendToken(authToken, success, 200, res)
     } catch (error) {
         console.log(error.message)
         res.status(500).send({ success: false, status: 500, error: error.message });
@@ -170,7 +177,7 @@ export const updatePassword = async (req, res, next) => {
 
         const success = true;
 
-        sendToken(authToken, success, 200, res)
+        await sendToken(authToken, success, 200, res)
 
     } catch (error) {
         console.log(error.message)
@@ -215,7 +222,7 @@ export const resetPassword = async (req, res, next) => {
             expiresIn: process.env.JWT_EXPIRE,
         });
         const success = true;
-        sendToken(authToken, success, 200, res)
+        await  sendToken(authToken, success, 200, res)
     } catch (error) {
         console.log(error.message)
         res.status(500).send({ success: false, status: 500, error: error.message });
@@ -308,7 +315,7 @@ export const updateUser = async (req, res) => {
         if (name) { newUserData.name = name }
         if (email) { newUserData.email = email }
         if (role) { newUserData.role = role }
-        
+
         const userId = req.params.id;
         const user = await User.findByIdAndUpdate(userId, newUserData, {
             new: true,

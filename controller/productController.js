@@ -18,10 +18,16 @@ export const getAllProducts = async (req, res) => {
     try {
         const productCount = await Product.countDocuments()
         const resultPerPage = 8;
-
         const apiFeatures = new ApiFeatures(Product.find(), req.query).search().filter().pagination(resultPerPage);
+
         const products = await apiFeatures.query;
-        res.status(200).send({ success: true, products, productCount })
+        
+
+        const filterProductCount = products.length;
+
+
+
+        res.status(200).send({ success: true, products, productCount,resultPerPage,filterProductCount})
     } catch (error) {
         console.log(error.message)
         res.status(500).send({ success: false, status: 500, error: error.message });
