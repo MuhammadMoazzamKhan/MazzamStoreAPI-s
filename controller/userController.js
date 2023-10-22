@@ -244,8 +244,8 @@ export const updateProfile = async (req, res, next) => {
             new: true,
             runValidators: true,
             useFindAndModify: true
-        });
-        res.status(200).json({ success: true, message: "Profile has been updated", status: 200 })
+        }).select('-password')
+        res.status(200).json({ success: true, message: "Profile has been updated", status: 200,user })
     } catch (error) {
         console.log(error.message)
         res.status(500).send({ success: false, status: 500, error: error.message });
