@@ -231,13 +231,33 @@ export const resetPassword = async (req, res, next) => {
 
 export const updateProfile = async (req, res, next) => {
     try {
+        const tempUser = await User.findById(req.user._id);
 
-        const { name, email } = req.body;
+        const imgID = tempUser.avatar.public_id;
+        
+        await cloudinary.v2.uploader.destroy(imgID);
+
+        const { name, email ,avatar } = req.body;
 
         const newUserData = {}
 
         if (name) { newUserData.name = name }
         if (email) { newUserData.email = email }
+
+        const options = {
+            folder: "avatars",
+            width: 150,
+            crop: "scale"
+        };
+
+        if(avatar){
+            const myCloud = await cloudinary.v2.uploader.upload(avatar, options);
+            newUserData.avatar = {
+                public_id : myCloud.public_id,
+                url : myCloud.secure_url
+            }
+        }
+
 
         const userId = req.user._id;
         const user = await User.findByIdAndUpdate(userId, newUserData, {
